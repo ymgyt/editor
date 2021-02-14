@@ -1,33 +1,11 @@
-use std::io::{self, stdout, Read};
-use termion::raw::IntoRawMode;
+#![warn(clippy::all, clippy::pedantic)]
 
-fn to_ctrl_byte(c: char) -> u8 {
-    let b = c as u8;
-    b & 0b0001_1111
-}
+mod editor;
+mod terminal;
 
-fn die(e: std::io::Error) {
-    panic!(e)
-}
+use editor::Editor;
+pub use terminal::Terminal;
 
 fn main() {
-    let _stdout = stdout().into_raw_mode().unwrap();
-
-    for b in io::stdin().bytes() {
-        match b {
-            Ok(b) => {
-                let c = b as char;
-                if c.is_control() {
-                    println!("{:3?} ({:#08b}) \r", b, b);
-                } else {
-                    println!("{:3?} ({:#09b}) ({})\r", b, b,c);
-                }
-
-                if b == to_ctrl_byte('q') {
-                    break;
-                }
-            }
-            Err(err) => die(err),
-        }
-    }
+    Editor::default().run();
 }
